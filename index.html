@@ -35,6 +35,7 @@
         }
         .tip-content {
             margin-top: -76px;
+            display: none;
         }
         .m_common_tip .tip-content .content-right {
             flex-grow: 1;
@@ -78,7 +79,9 @@
         let ua = window.navigator.userAgent.toLowerCase();
         if (ua.match(/MicroMessenger/i) == 'micromessenger') {
             $('.chart_tips').css('display','block')
-        } 
+        }else{
+            $('.tip-content').css('display','block')
+        }
         $('.content-right').on('click', function () {
             const url = window.location.href;
             const query = url.split("?")[1];//参数值2
