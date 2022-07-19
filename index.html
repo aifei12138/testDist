@@ -76,34 +76,83 @@
 <script src="./static/jquery.min.js"></script>
 <script>
     $(function () {
+		// 下载地址（安卓）
+		let androidDownloadUrl = 'https://osstest.interhouse.cn/55ce7e8b44933a7714151a93550c4f34.apk';
+		// 下载地址（iOS）
+		let iosDownLoadUrl = 'https://apps.apple.com/cn/app/id1189433496';
+		//判断是否微信打开
         let ua = window.navigator.userAgent.toLowerCase();
         if (ua.match(/MicroMessenger/i) == 'micromessenger') {
             $('.chart_tips').css('display','block')
         }else{
             $('.tip-content').css('display','block')
         }
+		//点击打开
         $('.content-right').on('click', function () {
             const url = window.location.href;
-            const query = url.split("?")[1];//参数值2
+            const query = url.split("?")[1];//参数值
+			//判断Android还是ios
             let UA = navigator.userAgent;
             let IsAndroid = /android|adr|linux/gi.test(UA);
             let IsIOS = /iphone|mac|ipod|ipad/gi.test(UA) && !IsAndroid;
             $('.content-right').text('正在打开app...')
+			//打开链接
+			let open_url = '';
             if (IsAndroid) {
                 console.log('android')
-                window.location.href = "tjeg://www.tangji.egou?" + query;
-                setTimeout(() => {
-                    window.location.reload()
-                }, 5000);
+                open_url = "tjeg://www.tangji.egou?" + query;
             } else {
-                console.log('ios')
-                //window.location.href = "tjeg://www.tangji.egou?" + query;
-                window.location.href = 'tjegshop://' + query
-                setTimeout(() => {
-                    window.location.reload()
-                }, 5000);
+				console.log('ios')
+                open_url = 'tjegshop://' + query;
+                //setTimeout(() => {
+                    //window.location.reload()
+                //}, 5000);
             }
+			openApp(open_url, function () {
+                if (/android|adr|linux/gi.test(UA)) {
+                    console.log('打开安卓应用市场');
+                    window.location.href = androidDownloadUrl;
+                } else {
+                    console.log('打开AppStore');
+                    window.location.href = iosDownLoadUrl;
+                }
+            });
         })
+		/**
+		 * 判断手机上是否安装了app，如果安装直接打开url，如果没安装，执行callback
+		 */
+		function openApp(url, callback) {
+			// 设置隐藏属性和改变可见属性的事件的名称
+			let hidden, visibilityChange, checkOpen;
+			if (typeof document.hidden !== "undefined") { 
+				hidden = "hidden";
+				visibilityChange = "visibilitychange";
+			} else if (typeof document.msHidden !== "undefined") {
+				hidden = "msHidden";
+				visibilityChange = "msvisibilitychange";
+			} else if (typeof document.webkitHidden !== "undefined") {
+				hidden = "webkitHidden";
+				visibilityChange = "webkitvisibilitychange";
+			}
+			document.addEventListener(visibilityChange, function () {
+				clearInterval(checkOpen);
+			}, false);
+			// 唤起 APP，如果被唤起的话，页面就会进入后台运行，setInterval 在 ios 中不会停止运行，在 android 中停止运行
+			window.location.href = url;
+
+			const initialTime = new Date();
+			let waitTime = 0;
+			// 每 20ms 执行一次
+			// 我们的判断条件比预期时间多设置了 500ms，所以如果安卓中 setInterval 内的函数执行 100 次以内所费时间超过 2500ms，
+			// 则说明 APP 唤起成功，反之则代表失败。
+			checkOpen = setInterval(() => {
+				waitTime = new Date() - initialTime;
+				if (waitTime > 2500 && !document[hidden]) {
+					clearInterval(checkOpen);
+					callback && callback(); // 唤端失败的回调函数
+				}
+			}, 20);
+		}
     })
 </script>
 
