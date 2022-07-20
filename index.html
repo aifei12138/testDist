@@ -83,7 +83,7 @@
         $.ajax({  
             type : "get",
             url : "https://emapi.interhouse.cn/mall/?s=App.Home.CheckVersion", 
-            success : function(result) {//返回数据根据结果进行相应的处理  
+            success : function(result) {
                 if ( result.ret == '200' ) {  
                     console.log(result)
                     androidDownloadUrl = result.data.android.url;
@@ -112,12 +112,15 @@
             if (IsAndroid) {
                 console.log('android')
                 open_url = "tjhdshuzijia://test?" + query;
+                setTimeout(() => {
+                    window.location.reload()
+                }, 8000);
             } else {
 				console.log('ios')
-                open_url = 'tjegshop://' + query;
-                //setTimeout(() => {
-                    //window.location.reload()
-                //}, 5000);
+                open_url = 'tjhdshuzijia://' + query;
+                setTimeout(() => {
+                    window.location.reload()
+                }, 8000);
             }
 			openApp(open_url, function () {
                 if (/android|adr|linux/gi.test(UA)) {
@@ -125,7 +128,8 @@
                     window.location.href = androidDownloadUrl;
                 } else {
                     console.log('打开AppStore');
-                    window.location.href = iosDownLoadUrl;
+                    //window.open(iosDownLoadUrl);
+                    window.location.href = 'https://apps.apple.com/cn/app/id1189433496';
                 }
             });
         })
